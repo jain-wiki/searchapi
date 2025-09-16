@@ -73,8 +73,8 @@
       "uniqueConstraints": {},
       "checkConstraints": {}
     },
-    "text": {
-      "name": "text",
+    "textsearch": {
+      "name": "textsearch",
       "columns": {
         "id": {
           "name": "id",

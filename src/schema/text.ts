@@ -3,7 +3,7 @@ import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
 
 // FTS5 virtual table for full-text search
 // Note: This represents the structure, but FTS5 tables need to be created with raw SQL
-export const Text = sqliteTable('text', {
+export const Text = sqliteTable('textsearch', {
   id: int('id').primaryKey(), // 1:1 relationship with item table
   name: text('name'),
   place: text('place'),

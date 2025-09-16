@@ -1,9 +1,7 @@
-CREATE TABLE `geolocation` (
-	`id` integer PRIMARY KEY NOT NULL,
-	`minX` real NOT NULL,
-	`maxX` real NOT NULL,
-	`minY` real NOT NULL,
-	`maxY` real NOT NULL
+CREATE VIRTUAL TABLE IF NOT EXISTS `geolocation` USING rtree(
+  id,
+  minX, maxX,
+  minY, maxY
 );
 --> statement-breakpoint
 CREATE TABLE `item` (
@@ -11,18 +9,13 @@ CREATE TABLE `item` (
 	`d` text
 );
 --> statement-breakpoint
-CREATE TABLE `text` (
-	`id` integer PRIMARY KEY NOT NULL,
-	`name` text,
-	`place` text,
-	`deity` text,
-	`sect` text,
-	`typeof` text
+CREATE VIRTUAL TABLE IF NOT EXISTS `textsearch` USING fts5(
+  id,
+  name,
+  place,
+  deity,
+  sect,
+  typeof
 );
 --> statement-breakpoint
-CREATE TABLE `vocab` (
-	`word` text NOT NULL,
-	`rank` integer DEFAULT 1,
-	`langid` integer DEFAULT 0,
-	`soundslike` text
-);
+CREATE VIRTUAL TABLE IF NOT EXISTS `vocab` USING spellfix1;
