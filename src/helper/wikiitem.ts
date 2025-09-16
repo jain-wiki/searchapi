@@ -3,7 +3,7 @@
 // The function takes a wiki item as input and returns a shrunk version of the item
 
 interface ShrunkWikiItem {
-  id: string;
+  id: number;
   name: string;
   description: string;
   location?: { latitude: number; longitude: number };
@@ -46,13 +46,18 @@ export function shrinkWikiItem(item: any): ShrunkWikiItem {
   // console.log('Claim Values:', claimValues);
 
   return {
-    id: item.id,
+    id: wikiItemToNumber(item.id),
     // name (append all the aliases seperated by space)
     name: item.labels?.en?.value || '' + (aliases ? ' ' + aliases : ''),
     description: item.descriptions?.en?.value || '',
     location,
     claims: claimValues,
   };
+}
+
+export function wikiItemToNumber(itemId: string): number {
+  itemId = itemId.replace('Q', '');
+  return parseInt(itemId, 10);
 }
 
 if (import.meta.main) {
