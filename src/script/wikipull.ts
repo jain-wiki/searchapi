@@ -1,9 +1,11 @@
 import { Item } from '../schema/item.ts'
+import { Geolocation } from '../schema/geolocation.ts'
 import { shrinkWikiItem } from '../helper/wikiitem.ts'
 import { db } from '../db.ts'
 import { readdir } from 'fs/promises'
 import { readFileSync } from 'fs'
 import { join, resolve } from 'path'
+import { clampLatLng } from '../helper/utilmaths.ts'
 
 async function processWikiFiles() {
   try {
@@ -50,6 +52,24 @@ async function processWikiFiles() {
                 d: shrunkItem,
               }
             })
+
+            if (shrunkItem.location?.latitude) {
+              await db.insert(Geolocation).values({
+                id: shrunkItem.id,
+                minX: clampLatLng(shrunkItem.location.latitude - 0.0001),
+                maxX: clampLatLng(shrunkItem.location.latitude + 0.0001),
+                minY: clampLatLng(shrunkItem.location.longitude - 0.0001),
+                maxY: clampLatLng(shrunkItem.location.longitude + 0.0001),
+              }).onConflictDoUpdate({
+                target: Geolocation.id,
+                set: {
+                  minX: clampLatLng(shrunkItem.location.latitude - 0.0001),
+                  maxX: clampLatLng(shrunkItem.location.latitude + 0.0001),
+                  minY: clampLatLng(shrunkItem.location.longitude - 0.0001),
+                  maxY: clampLatLng(shrunkItem.location.longitude + 0.0001),
+                }
+              })
+            }
 
             fileProcessed++
             totalProcessed++
