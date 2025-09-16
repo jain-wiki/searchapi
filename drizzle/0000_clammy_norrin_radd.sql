@@ -1,10 +1,18 @@
+CREATE TABLE `geolocation` (
+	`id` integer PRIMARY KEY NOT NULL,
+	`minX` real NOT NULL,
+	`maxX` real NOT NULL,
+	`minY` real NOT NULL,
+	`maxY` real NOT NULL
+);
+--> statement-breakpoint
 CREATE TABLE `item` (
-	`id` text PRIMARY KEY NOT NULL,
+	`id` integer PRIMARY KEY NOT NULL,
 	`d` text
 );
 --> statement-breakpoint
 CREATE TABLE `text` (
-	`id` text PRIMARY KEY NOT NULL,
+	`id` integer PRIMARY KEY NOT NULL,
 	`name` text,
 	`place` text,
 	`deity` text,

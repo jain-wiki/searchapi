@@ -1,15 +1,60 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "46c9b765-7fde-4c88-92cb-06ffa99adcd4",
+  "id": "0c6804c4-f148-47f9-be00-392a312af487",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
+    "geolocation": {
+      "name": "geolocation",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "minX": {
+          "name": "minX",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "maxX": {
+          "name": "maxX",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "minY": {
+          "name": "minY",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
+        "maxY": {
+          "name": "maxY",
+          "type": "real",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {}
+    },
     "item": {
       "name": "item",
       "columns": {
         "id": {
           "name": "id",
-          "type": "text",
+          "type": "integer",
           "primaryKey": true,
           "notNull": true,
           "autoincrement": false
@@ -33,7 +78,7 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "text",
+          "type": "integer",
           "primaryKey": true,
           "notNull": true,
           "autoincrement": false
