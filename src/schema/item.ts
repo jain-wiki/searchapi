@@ -2,9 +2,9 @@ import { sqliteTable, text } from 'drizzle-orm/sqlite-core';
 import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
 
 // Example search-related table - modify as needed
-export const Item = sqliteTable('search_queries', {
+export const Item = sqliteTable('item', {
   id: text('id').primaryKey(),
-  d: text('results', { mode: 'json' }), // Store JSON results
+  d: text('d', { mode: 'json' }), // Store JSON results
 });
 
 // Zod schemas for validation
