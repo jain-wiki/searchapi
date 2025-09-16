@@ -27,16 +27,26 @@ export const createVocabSpellfix1Table = `
   CREATE VIRTUAL TABLE IF NOT EXISTS vocab USING spellfix1;
 `;
 
-// Helper SQL to populate vocab table from text table
-// This extracts unique words from various text fields with frequency-based ranking
+// Helper SQL to populate vocab table from textsearch (FTS5) table
 export const populateVocabFromTextTable = `
-  -- Insert words from name field
-  INSERT OR IGNORE INTO vocab(word, rank)
-  SELECT DISTINCT LOWER(TRIM(name)) as word, COUNT(*) as rank
-  FROM text
-  WHERE name IS NOT NULL AND TRIM(name) != ''
-  GROUP BY LOWER(TRIM(name));
-`;
+  -- First create a temporary fts5vocab table to extract vocabulary from the FTS5 index
+  CREATE VIRTUAL TABLE IF NOT EXISTS temp.text_vocab USING fts5vocab(textsearch, col);
+
+  -- Insert unique terms from all columns into the vocab spellfix1 table
+  -- Use cnt (total occurrences) as rank to favor more common terms
+  INSERT OR REPLACE INTO vocab(word, rank, langid)
+  SELECT
+    term as word,
+    SUM(cnt) as rank,  -- Sum occurrences across all columns for total frequency
+    0 as langid        -- Default language ID
+  FROM temp.text_vocab
+  WHERE length(term) >= 3  -- Filter out very short terms
+  GROUP BY term           -- Consolidate same terms from different columns
+  ORDER BY rank DESC;     -- Insert most frequent terms first
+
+  -- Clean up temporary vocab table
+  DROP TABLE IF EXISTS temp.text_vocab;
+  `;
 
 // Example queries for using the spellfix1 vocab table
 export const vocabExampleQueries = {
