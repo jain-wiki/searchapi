@@ -1,5 +1,7 @@
 import { Item } from '../schema/item.ts'
 import { Geolocation } from '../schema/geolocation.ts'
+import { Text } from '../schema/text.ts'
+
 import { shrinkWikiItem } from '../helper/wikiitem.ts'
 import { db } from '../db.ts'
 import { readdir } from 'fs/promises'
@@ -70,6 +72,22 @@ async function processWikiFiles() {
                 }
               })
             }
+
+            const insertUpdateObj = {
+              name: shrunkItem.name,
+              place: (shrunkItem.claims?.P4 || []).join(' '),
+              deity: (shrunkItem.claims?.P20 || []).join(' '),
+              sect: (shrunkItem.claims?.P16 || []).join(' '),
+              typeof: (shrunkItem.claims?.P1 || []).join(' '),
+            }
+
+            await db.insert(Text).values({
+              id: shrunkItem.id,
+              ...insertUpdateObj
+            }).onConflictDoUpdate({
+              target: Text.id,
+              set: insertUpdateObj,
+            })
 
             fileProcessed++
             totalProcessed++
