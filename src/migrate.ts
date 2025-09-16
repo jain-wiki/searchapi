@@ -7,9 +7,9 @@ console.log('🚀 Running migrations...');
 try {
   await migrate(db, { migrationsFolder: './drizzle' });
   console.log('✅ Migrations completed successfully');
-  console.log('🚀 Populating vocabulary table...');
-  sqlite.run(populateVocabFromTextTable);
-  console.log('✅ Vocabulary table populated successfully');
+  // console.log('🚀 Populating vocabulary table...');
+  // sqlite.run(populateVocabFromTextTable);
+  // console.log('✅ Vocabulary table populated successfully');
 } catch (error) {
   console.error('❌ Migration failed:', error);
   process.exit(1);
