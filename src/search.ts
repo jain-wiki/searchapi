@@ -7,7 +7,7 @@ import { sql } from 'drizzle-orm';
 
 export const searchRoute = new Hono()
 
-searchRoute.post('/',
+searchRoute.get('/',
   zValidator('query',
     z.object({
       q: z.string().min(1).max(100).optional(), // Search Query
