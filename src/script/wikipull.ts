@@ -4,6 +4,7 @@ import { Text } from '../schema/text.ts'
 
 import { shrinkWikiItem } from '../helper/wikiitem.ts'
 import { db } from '../db.ts'
+import { eq } from 'drizzle-orm'
 import { readdir } from 'fs/promises'
 import { readFileSync } from 'fs'
 import { join, resolve } from 'path'
@@ -63,30 +64,45 @@ async function processWikiFiles() {
                 minY: clampLatLng(shrunkItem.location.longitude - 0.0001),
                 maxY: clampLatLng(shrunkItem.location.longitude + 0.0001),
               }
-              await db.insert(Geolocation).values({
-                id: shrunkItem.id,
-                ...insertUpdateObjGeo
-              }).onConflictDoUpdate({
-                target: Geolocation.id,
-                set: insertUpdateObjGeo
-              })
-            }
 
-            const insertUpdateObjText = {
-              name: transliterate(shrunkItem.name).toLocaleLowerCase(),
-              place: transliterate((shrunkItem.claims?.P4 || []).join(' ')).toLocaleLowerCase(),
-              deity: transliterate((shrunkItem.claims?.P20 || []).join(' ')).toLocaleLowerCase(),
-              sect: transliterate((shrunkItem.claims?.P16 || []).join(' ')).toLocaleLowerCase(),
-              typeof: transliterate((shrunkItem.claims?.P1 || []).join(' ')).toLocaleLowerCase(),
-            }
+              try {
+                await db.insert(Geolocation).values({
+                  id: shrunkItem.id,
+                  ...insertUpdateObjGeo
+                })
+              } catch (error) {
+                if (error.code === 'SQLITE_CONSTRAINT') {
+                  await db.update(Geolocation).set(insertUpdateObjGeo)
+                    .where(eq(Geolocation.id, shrunkItem.id))
 
-            await db.insert(Text).values({
-              id: shrunkItem.id,
-              ...insertUpdateObjText
-            }).onConflictDoUpdate({
-              target: Text.id,
-              set: insertUpdateObjText,
-            })
+                } else {
+                  throw error
+                }
+              }
+
+              const insertUpdateObjText = {
+                name: transliterate(shrunkItem.name).replaceAll(',', ' ').toLocaleLowerCase(),
+                place: (shrunkItem.claims?.P4 || []).join(' '),
+                deity: (shrunkItem.claims?.P20 || []).join(' '),
+                sect: (shrunkItem.claims?.P16 || []).join(' '),
+                typeof: (shrunkItem.claims?.P1 || []).join(' '),
+              }
+
+              try {
+                await db.insert(Text).values({
+                  id: shrunkItem.id,
+                  ...insertUpdateObjText
+                })
+
+              } catch (error) {
+                if (error.code === 'SQLITE_CONSTRAINT') {
+                  await db.update(Text).set(insertUpdateObjText).where(eq(Text.id, shrunkItem.id))
+                } else {
+                  throw error
+                }
+              }
+
+            }
 
             fileProcessed++
             totalProcessed++
