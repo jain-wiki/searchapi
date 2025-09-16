@@ -25,7 +25,8 @@ export function shrinkWikiItem(item: any): ShrunkWikiItem {
   for (const prop in claims) {
     const propClaimValues = claims[prop]
     for (const cv of propClaimValues) {
-      const v = cv.mainsnak.datavalue.value;
+      const v = cv.mainsnak?.datavalue?.value;
+      if (!v) { continue; } // Cases where the value is "unknown value" or "no value".
       if (!claimValues[prop]) { claimValues[prop] = []; } // Initialize array if not present
       if (typeof v === 'string') {
         claimValues[prop].push(v);
