@@ -56,24 +56,22 @@ async function processWikiFiles() {
             })
 
             if (shrunkItem.location?.latitude) {
-              await db.insert(Geolocation).values({
-                id: shrunkItem.id,
+              const insertUpdateObjGeo = {
                 minX: clampLatLng(shrunkItem.location.latitude - 0.0001),
                 maxX: clampLatLng(shrunkItem.location.latitude + 0.0001),
                 minY: clampLatLng(shrunkItem.location.longitude - 0.0001),
                 maxY: clampLatLng(shrunkItem.location.longitude + 0.0001),
+              }
+              await db.insert(Geolocation).values({
+                id: shrunkItem.id,
+                ...insertUpdateObjGeo
               }).onConflictDoUpdate({
                 target: Geolocation.id,
-                set: {
-                  minX: clampLatLng(shrunkItem.location.latitude - 0.0001),
-                  maxX: clampLatLng(shrunkItem.location.latitude + 0.0001),
-                  minY: clampLatLng(shrunkItem.location.longitude - 0.0001),
-                  maxY: clampLatLng(shrunkItem.location.longitude + 0.0001),
-                }
+                set: insertUpdateObjGeo
               })
             }
 
-            const insertUpdateObj = {
+            const insertUpdateObjText = {
               name: shrunkItem.name,
               place: (shrunkItem.claims?.P4 || []).join(' '),
               deity: (shrunkItem.claims?.P20 || []).join(' '),
@@ -83,10 +81,10 @@ async function processWikiFiles() {
 
             await db.insert(Text).values({
               id: shrunkItem.id,
-              ...insertUpdateObj
+              ...insertUpdateObjText
             }).onConflictDoUpdate({
               target: Text.id,
-              set: insertUpdateObj,
+              set: insertUpdateObjText,
             })
 
             fileProcessed++
