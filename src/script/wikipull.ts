@@ -40,10 +40,15 @@ async function processWikiFiles() {
             // shrink the JSON using the helper function
             const shrunkItem = shrinkWikiItem(wikiItem)
 
-            // Insert the JSON into the SQLite database `item` table
+            // Insert or update the JSON into the SQLite database `item` table
             await db.insert(Item).values({
               id: shrunkItem.id,
               d: shrunkItem,
+            }).onConflictDoUpdate({
+              target: Item.id,
+              set: {
+                d: shrunkItem,
+              }
             })
 
             fileProcessed++
