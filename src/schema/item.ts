@@ -1,0 +1,16 @@
+import { sqliteTable, text } from 'drizzle-orm/sqlite-core';
+import { createInsertSchema, createSelectSchema } from 'drizzle-zod';
+
+// Example search-related table - modify as needed
+export const Item = sqliteTable('search_queries', {
+  id: text('id').primaryKey(),
+  d: text('results', { mode: 'json' }), // Store JSON results
+});
+
+// Zod schemas for validation
+export const insertItemSchema = createInsertSchema(Item);
+export const selectItemSchema = createSelectSchema(Item);
+
+// Types
+export type ItemQuery = typeof Item.$inferSelect;
+export type ItemNew = typeof Item.$inferInsert;
