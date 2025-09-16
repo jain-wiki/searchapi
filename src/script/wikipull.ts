@@ -7,6 +7,7 @@ import { db } from '../db.ts'
 import { readdir } from 'fs/promises'
 import { readFileSync } from 'fs'
 import { join, resolve } from 'path'
+import transliterate from '@sindresorhus/transliterate';
 import { clampLatLng } from '../helper/utilmaths.ts'
 
 async function processWikiFiles() {
@@ -72,11 +73,11 @@ async function processWikiFiles() {
             }
 
             const insertUpdateObjText = {
-              name: shrunkItem.name,
-              place: (shrunkItem.claims?.P4 || []).join(' '),
-              deity: (shrunkItem.claims?.P20 || []).join(' '),
-              sect: (shrunkItem.claims?.P16 || []).join(' '),
-              typeof: (shrunkItem.claims?.P1 || []).join(' '),
+              name: transliterate(shrunkItem.name).toLocaleLowerCase(),
+              place: transliterate((shrunkItem.claims?.P4 || []).join(' ')).toLocaleLowerCase(),
+              deity: transliterate((shrunkItem.claims?.P20 || []).join(' ')).toLocaleLowerCase(),
+              sect: transliterate((shrunkItem.claims?.P16 || []).join(' ')).toLocaleLowerCase(),
+              typeof: transliterate((shrunkItem.claims?.P1 || []).join(' ')).toLocaleLowerCase(),
             }
 
             await db.insert(Text).values({

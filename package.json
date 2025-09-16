@@ -5,6 +5,7 @@
   "private": true,
   "dependencies": {
     "@hono/zod-validator": "^0.7.2",
+    "@sindresorhus/transliterate": "^2.0.0",
     "drizzle-orm": "^0.44.5",
     "drizzle-zod": "^0.8.3",
     "hono": "^4.5.8",
