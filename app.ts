@@ -12,16 +12,11 @@ app.use(secureHeaders());
 // CORS middleware
 app.use(
   cors({
-    origin: ['http://localhost:3000', 'http://localhost:5173'], // Add your frontend URLs
-    allowHeaders: ['Content-Type', 'Authorization'],
-    allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    credentials: true,
+    origin: '*',
+    allowMethods: ['GET'],
   })
 );
 
-// Additional middleware
-app.use(logger());
-app.use(prettyJSON());
 
 // Health check endpoint
 app.get('/health', (c) => {
@@ -29,34 +24,8 @@ app.get('/health', (c) => {
 });
 
 // API routes
-app.get('/api/search', async (c) => {
-  const query = c.req.query('q');
-  const limit = c.req.query('limit');
-  const userId = c.req.query('userId');
-
-  if (!query) {
-    return c.json({ error: 'Query parameter "q" is required' }, 400);
-  }
-
-  try {
-    const { performSearch } = await import('./src/search');
-
-    const results = await performSearch({
-      query,
-      limit: limit ? parseInt(limit) : undefined,
-      userId: userId ? parseInt(userId) : undefined,
-    });
-
-    return c.json({
-      query,
-      results,
-      total: results.length,
-    });
-  } catch (error) {
-    console.error('Search error:', error);
-    return c.json({ error: 'Search failed' }, 500);
-  }
-});
+import { searchRoute } from './src/search.ts';
+app.route('/api/search', searchRoute);
 
 // 404 handler
 app.notFound((c) => {
