@@ -1,8 +1,6 @@
 import { Hono } from 'hono';
 import { cors } from 'hono/cors';
 import { secureHeaders } from 'hono/secure-headers';
-import { logger } from 'hono/logger';
-import { prettyJSON } from 'hono/pretty-json';
 
 const app = new Hono();
 
@@ -25,7 +23,7 @@ app.get('/health', (c) => {
 
 // API routes
 import { searchRoute } from './src/search.ts';
-app.route('/api/search', searchRoute);
+app.route('/search', searchRoute);
 
 // 404 handler
 app.notFound((c) => {
