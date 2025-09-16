@@ -1,0 +1,3 @@
+[submodule "atlas-data"]
+	path = atlas-data
+	url = https://github.com/jain-wiki/atlas-data
