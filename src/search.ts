@@ -107,7 +107,7 @@ async function performTextSearch(params: {
   const queryParts: string[] = [];
 
   if (q) {
-    queryParts.push(`name:${q}*`);
+    queryParts.push(`name:${q}`);
   }
   if (place) {
     queryParts.push(`place:${place}`);
