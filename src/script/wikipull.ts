@@ -60,10 +60,10 @@ async function processWikiFiles() {
 
             if (shrunkItem.location?.latitude) {
               const insertUpdateObjGeo = {
-                minX: clampLatLng(shrunkItem.location.latitude - 0.0001),
-                maxX: clampLatLng(shrunkItem.location.latitude + 0.0001),
-                minY: clampLatLng(shrunkItem.location.longitude - 0.0001),
-                maxY: clampLatLng(shrunkItem.location.longitude + 0.0001),
+                minX: clampLatLng(shrunkItem.location.longitude - 0.0001),
+                maxX: clampLatLng(shrunkItem.location.longitude + 0.0001),
+                minY: clampLatLng(shrunkItem.location.latitude - 0.0001),
+                maxY: clampLatLng(shrunkItem.location.latitude + 0.0001),
               }
 
               await db.insert(Geolocation).values({
