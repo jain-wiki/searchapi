@@ -71,7 +71,8 @@ async function processWikiFiles() {
                   ...insertUpdateObjGeo
                 })
               } catch (error) {
-                if (error.code === 'SQLITE_CONSTRAINT') {
+                // @ts-ignore
+                if (error?.code === 'SQLITE_CONSTRAINT') {
                   await db.update(Geolocation).set(insertUpdateObjGeo)
                     .where(eq(Geolocation.id, shrunkItem.id))
 
@@ -95,7 +96,8 @@ async function processWikiFiles() {
                 })
 
               } catch (error) {
-                if (error.code === 'SQLITE_CONSTRAINT') {
+                // @ts-ignore
+                if (error?.code === 'SQLITE_CONSTRAINT') {
                   await db.update(Text).set(insertUpdateObjText).where(eq(Text.id, shrunkItem.id))
                 } else {
                   throw error
