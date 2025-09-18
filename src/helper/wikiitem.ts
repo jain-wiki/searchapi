@@ -48,10 +48,9 @@ export function shrinkWikiItem(item: any): ShrunkWikiItem {
 
   return {
     id: wikiItemToNumber(item.id),
-    // name (append all the aliases seperated by space)
-    name: `${item.labels?.en?.value || ''} ${aliases ?? ''}`.trim(),
+    name: item.labels?.en?.value || '',
     description: item.descriptions?.en?.value || '',
-    alias: aliases,
+    alias: aliases, // Note: In the database, this is appended to the name for text search
     location,
     claims: claimValues,
   };

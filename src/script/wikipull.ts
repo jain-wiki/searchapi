@@ -80,30 +80,29 @@ async function processWikiFiles() {
                   throw error
                 }
               }
+            } // End of location check
 
-              const insertUpdateObjText = {
-                name: transliterate(shrunkItem.name).replaceAll(',', ' ').toLocaleLowerCase(),
-                place: (shrunkItem.claims?.P4 || []).join(' '),
-                deity: (shrunkItem.claims?.P20 || []).join(' '),
-                sect: (shrunkItem.claims?.P16 || []).join(' '),
-                typeof: (shrunkItem.claims?.P1 || []).join(' '),
+            const insertUpdateObjText = {
+              name: transliterate(`$${shrunkItem.name} ${shrunkItem.alias}`).replaceAll(',', ' ').toLocaleLowerCase(),
+              place: (shrunkItem.claims?.P4 || []).join(' '),
+              deity: (shrunkItem.claims?.P20 || []).join(' '),
+              sect: (shrunkItem.claims?.P16 || []).join(' '),
+              typeof: (shrunkItem.claims?.P1 || []).join(' '),
+            }
+
+            try {
+              await db.insert(Text).values({
+                id: shrunkItem.id,
+                ...insertUpdateObjText
+              })
+
+            } catch (error) {
+              // @ts-ignore
+              if (error?.code === 'SQLITE_CONSTRAINT') {
+                await db.update(Text).set(insertUpdateObjText).where(eq(Text.id, shrunkItem.id))
+              } else {
+                throw error
               }
-
-              try {
-                await db.insert(Text).values({
-                  id: shrunkItem.id,
-                  ...insertUpdateObjText
-                })
-
-              } catch (error) {
-                // @ts-ignore
-                if (error?.code === 'SQLITE_CONSTRAINT') {
-                  await db.update(Text).set(insertUpdateObjText).where(eq(Text.id, shrunkItem.id))
-                } else {
-                  throw error
-                }
-              }
-
             }
 
             fileProcessed++
