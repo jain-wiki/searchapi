@@ -15,15 +15,9 @@ app.use(
   })
 );
 
-
-// Health check endpoint
-app.get('/health', (c) => {
-  return c.json({ status: 'ok', timestamp: new Date().toISOString() });
-});
-
 // API routes
 import { searchRoute } from './src/search.ts';
-app.route('/search', searchRoute);
+app.route('/api', searchRoute);
 
 // 404 handler
 app.notFound((c) => {
