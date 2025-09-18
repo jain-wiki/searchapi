@@ -6,6 +6,7 @@ interface ShrunkWikiItem {
   id: number;
   name: string;
   description: string;
+  alias: string;
   location?: { latitude: number; longitude: number };
   claims: Record<string, string[]>;
 }
@@ -13,7 +14,7 @@ interface ShrunkWikiItem {
 export function shrinkWikiItem(item: any): ShrunkWikiItem {
 
   // Combine all the aliases into a single string
-  const aliases = item.aliases?.en ? item.aliases.en.map((a: any) => a.value).join(' ') : '';
+  const aliases = item.aliases?.en ? item.aliases.en.map((a: any) => a.value).join(', ') : '';
   let location;
 
   // Claims - extract the relevant properties
@@ -48,8 +49,9 @@ export function shrinkWikiItem(item: any): ShrunkWikiItem {
   return {
     id: wikiItemToNumber(item.id),
     // name (append all the aliases seperated by space)
-    name: item.labels?.en?.value || '' + (aliases ? ' ' + aliases : ''),
+    name: `${item.labels?.en?.value || ''} ${aliases ?? ''}`.trim(),
     description: item.descriptions?.en?.value || '',
+    alias: aliases,
     location,
     claims: claimValues,
   };
