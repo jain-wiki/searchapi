@@ -4,7 +4,6 @@ import { Text } from '../schema/text.ts'
 
 import { shrinkWikiItem } from '../helper/wikiitem.ts'
 import { db } from '../db.ts'
-import { eq } from 'drizzle-orm'
 import { readdir } from 'fs/promises'
 import { readFileSync } from 'fs'
 import { join, resolve } from 'path'
@@ -23,6 +22,13 @@ async function processWikiFiles() {
     const jsonlFiles = files.filter(file => file.endsWith('.jsonl'))
 
     console.log(`Found ${jsonlFiles.length} JSONL files to process`)
+
+    // Delete all the data from the `item`, `geolocation` and `text` tables
+    console.log('Clearing existing data from item, geolocation, and text tables...')
+    await db.delete(Item)
+    await db.delete(Geolocation)
+    await db.delete(Text)
+    console.log('Existing data cleared.')
 
     let totalProcessed = 0
 
@@ -50,11 +56,6 @@ async function processWikiFiles() {
             await db.insert(Item).values({
               id: shrunkItem.id,
               d: shrunkItem,
-            }).onConflictDoUpdate({
-              target: Item.id,
-              set: {
-                d: shrunkItem,
-              }
             })
 
             if (shrunkItem.location?.latitude) {
@@ -65,21 +66,11 @@ async function processWikiFiles() {
                 maxY: clampLatLng(shrunkItem.location.longitude + 0.0001),
               }
 
-              try {
-                await db.insert(Geolocation).values({
-                  id: shrunkItem.id,
-                  ...insertUpdateObjGeo
-                })
-              } catch (error) {
-                // @ts-ignore
-                if (error?.code === 'SQLITE_CONSTRAINT') {
-                  await db.update(Geolocation).set(insertUpdateObjGeo)
-                    .where(eq(Geolocation.id, shrunkItem.id))
+              await db.insert(Geolocation).values({
+                id: shrunkItem.id,
+                ...insertUpdateObjGeo,
+              })
 
-                } else {
-                  throw error
-                }
-              }
             } // End of location check
 
             const insertUpdateObjText = {
@@ -90,20 +81,10 @@ async function processWikiFiles() {
               typeof: (shrunkItem.claims?.P1 || []).join(' '),
             }
 
-            try {
-              await db.insert(Text).values({
-                id: shrunkItem.id,
-                ...insertUpdateObjText
-              })
-
-            } catch (error) {
-              // @ts-ignore
-              if (error?.code === 'SQLITE_CONSTRAINT') {
-                await db.update(Text).set(insertUpdateObjText).where(eq(Text.id, shrunkItem.id))
-              } else {
-                throw error
-              }
-            }
+            await db.insert(Text).values({
+              id: shrunkItem.id,
+              ...insertUpdateObjText,
+            })
 
             fileProcessed++
             totalProcessed++
