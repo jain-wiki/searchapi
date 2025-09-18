@@ -11,10 +11,10 @@ searchRoute.get('/',
   zValidator('query',
     z.object({
       q: z.string().min(1).max(100).optional(), // Search Query
-      place: z.string().min(1).max(100).optional(), // Place Item ID
-      sect: z.string().min(1).max(100).optional(), // Section Item ID
-      deity: z.string().min(1).max(100).optional(), // Deity Item ID
-      instanceOf: z.string().min(1).max(100).optional(), // Instance Of Item ID
+      place: z.string().min(1).max(5).uppercase().trim().optional(), // Place Item ID
+      sect: z.string().min(1).max(5).uppercase().trim().optional(), // Section Item ID
+      deity: z.string().min(1).max(5).uppercase().trim().optional(), // Deity Item ID
+      instanceOf: z.string().min(1).max(5).uppercase().trim().optional(), // Instance Of Item ID
 
       // User Location or Map Center
       latitude: z.number().min(-90).max(90).optional(),
