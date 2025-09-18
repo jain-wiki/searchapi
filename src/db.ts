@@ -4,6 +4,7 @@ import { Database } from 'bun:sqlite';
 import { drizzle } from 'drizzle-orm/bun-sqlite';
 
 const isReadOnly = process.env.IS_DB_READONLY === 'true';
+console.info(`Database opened in ${isReadOnly ? 'READ-ONLY' : 'READ-WRITE'} mode`);
 
 // Create SQLite database connection
 export const sqlite = new Database('./local.db', { create: true, readonly: isReadOnly });
