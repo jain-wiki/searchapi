@@ -140,3 +140,5 @@ vite.config.ts.timestamp-*
 
 # Database
 local.db
+local.db-journal
+local.db-wal
