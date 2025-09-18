@@ -107,7 +107,7 @@ async function performTextSearch(params: {
   const queryParts: string[] = [];
 
   if (q) {
-    queryParts.push(`name:${q}`);
+    queryParts.push(`name:${q}*`);
   }
   if (place) {
     queryParts.push(`place:${place}`);
@@ -161,12 +161,23 @@ async function performGeoSearch(params: {
   const maxLng = longitude + radiusDegrees;
 
   // Execute R-tree spatial search with join to item table
+  // Calculate distance using Haversine formula and sort by distance
   const results = await db.all(sql`
-    SELECT i.id, i.d, g.minX, g.maxX, g.minY, g.maxY
+    SELECT i.id, i.d, g.minX, g.maxX, g.minY, g.maxY,
+           (g.minX + g.maxX) / 2.0 as centerLng,
+           (g.minY + g.maxY) / 2.0 as centerLat,
+           (6371000 * acos(
+             cos(radians(${latitude})) *
+             cos(radians((g.minY + g.maxY) / 2.0)) *
+             cos(radians((g.minX + g.maxX) / 2.0) - radians(${longitude})) +
+             sin(radians(${latitude})) *
+             sin(radians((g.minY + g.maxY) / 2.0))
+           )) as distance
     FROM geolocation g
     JOIN item i ON g.id = i.id
     WHERE g.minX <= ${maxLng} AND g.maxX >= ${minLng}
       AND g.minY <= ${maxLat} AND g.maxY >= ${minLat}
+    ORDER BY distance ASC
     LIMIT ${limit} OFFSET ${offset}
   `);
 
@@ -227,16 +238,26 @@ async function performCombinedSearch(params: {
   const maxLng = longitude + radiusDegrees;
 
   // Execute combined search: FTS5 + R-tree spatial search
+  // Sort by distance instead of rank when geolocation is involved
   const results = await db.all(sql`
     SELECT i.id, i.d, t.name, t.place, t.deity, t.sect, t.typeof,
-           g.minX, g.maxX, g.minY, g.maxY
+           g.minX, g.maxX, g.minY, g.maxY,
+           (g.minX + g.maxX) / 2.0 as centerLng,
+           (g.minY + g.maxY) / 2.0 as centerLat,
+           (6371000 * acos(
+             cos(radians(${latitude})) *
+             cos(radians((g.minY + g.maxY) / 2.0)) *
+             cos(radians((g.minX + g.maxX) / 2.0) - radians(${longitude})) +
+             sin(radians(${latitude})) *
+             sin(radians((g.minY + g.maxY) / 2.0))
+           )) as distance
     FROM textsearch t
     JOIN item i ON t.id = i.id
     JOIN geolocation g ON i.id = g.id
     WHERE textsearch MATCH ${ftsQuery}
       AND g.minX <= ${maxLng} AND g.maxX >= ${minLng}
       AND g.minY <= ${maxLat} AND g.maxY >= ${minLat}
-    ORDER BY rank
+    ORDER BY distance ASC
     LIMIT ${limit} OFFSET ${offset}
   `);
 
