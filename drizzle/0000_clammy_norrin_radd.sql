@@ -18,4 +18,4 @@ CREATE VIRTUAL TABLE IF NOT EXISTS `textsearch` USING fts5(
   typeof
 );
 --> statement-breakpoint
-CREATE VIRTUAL TABLE IF NOT EXISTS `vocab` USING spellfix1;
+-- CREATE VIRTUAL TABLE IF NOT EXISTS `vocab` USING spellfix1;
