@@ -13,6 +13,7 @@ searchRoute.get('/',
       q: z.string().min(1).max(100).optional(), // Search Query
       place: z.string().min(1).max(100).optional(), // Place Item ID
       sect: z.string().min(1).max(100).optional(), // Section Item ID
+      deity: z.string().min(1).max(100).optional(), // Deity Item ID
       instanceOf: z.string().min(1).max(100).optional(), // Instance Of Item ID
 
       // User Location or Map Center
@@ -28,7 +29,7 @@ searchRoute.get('/',
     const validQuery = c.req.valid('query');
 
     const {
-      q, place, sect, instanceOf,
+      q, place, sect, deity, instanceOf,
       latitude, longitude, radius,
       limit, offset } = validQuery
 
@@ -36,7 +37,7 @@ searchRoute.get('/',
       let results: any[] = [];
 
       // Check if we have text search parameters
-      const hasTextSearch = q || place || sect || instanceOf;
+      const hasTextSearch = q || place || sect || deity || instanceOf;
 
       // Check if we have geolocation parameters
       const hasGeoSearch = latitude !== undefined && longitude !== undefined;
@@ -44,14 +45,14 @@ searchRoute.get('/',
       if (hasTextSearch && hasGeoSearch) {
         // Combined search: text search with geolocation filtering
         results = await performCombinedSearch({
-          q, place, sect, instanceOf,
+          q, place, sect, deity, instanceOf,
           latitude, longitude, radius,
           limit, offset
         });
       } else if (hasTextSearch) {
         // Text-only search
         results = await performTextSearch({
-          q, place, sect, instanceOf,
+          q, place, sect, deity, instanceOf,
           limit, offset
         });
       } else if (hasGeoSearch) {
@@ -64,7 +65,7 @@ searchRoute.get('/',
         // No search parameters provided
         return c.json({
           success: false,
-          message: 'Please provide either search text (q, place, sect, instanceOf) or location (latitude, longitude)',
+          message: 'Please provide either search text (q, place, sect, deity, instanceOf) or location (latitude, longitude)',
           data: [],
           query: validQuery
         });
@@ -94,11 +95,12 @@ async function performTextSearch(params: {
   q?: string;
   place?: string;
   sect?: string;
+  deity?: string;
   instanceOf?: string;
   limit?: number;
   offset?: number;
 }) {
-  const { q, place, sect, instanceOf, limit = 10, offset = 0 } = params;
+  const { q, place, sect, deity, instanceOf, limit = 10, offset = 0 } = params;
 
   // Build FTS5 query string
   let ftsQuery = '';
@@ -112,6 +114,9 @@ async function performTextSearch(params: {
   }
   if (sect) {
     queryParts.push(`sect:${sect}`);
+  }
+  if (deity) {
+    queryParts.push(`deity:${deity}`);
   }
   if (instanceOf) {
     queryParts.push(`typeof:${instanceOf}`);
@@ -173,6 +178,7 @@ async function performCombinedSearch(params: {
   q?: string;
   place?: string;
   sect?: string;
+  deity?: string;
   instanceOf?: string;
   latitude: number;
   longitude: number;
@@ -181,7 +187,7 @@ async function performCombinedSearch(params: {
   offset?: number;
 }) {
   const {
-    q, place, sect, instanceOf,
+    q, place, sect, deity, instanceOf,
     latitude, longitude, radius = 1000,
     limit = 10, offset = 0
   } = params;
@@ -198,6 +204,9 @@ async function performCombinedSearch(params: {
   }
   if (sect) {
     queryParts.push(`sect:${sect}`);
+  }
+  if (deity) {
+    queryParts.push(`deity:${deity}`);
   }
   if (instanceOf) {
     queryParts.push(`typeof:${instanceOf}`);
