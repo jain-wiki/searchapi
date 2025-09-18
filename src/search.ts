@@ -21,7 +21,7 @@ searchRoute.get('/',
       longitude: z.number().min(-180).max(180).optional(),
       radius: z.number().min(0).max(10000).default(1000).optional(), // in meters (max 10 km)
       // Pagination
-      limit: z.number().min(1).max(100).default(10).optional(), // Result Limit
+      limit: z.number().min(1).max(100).default(20).optional(), // Result Limit
       offset: z.number().min(0).max(1000).default(0).optional(), // Result Offset
 
     })),
