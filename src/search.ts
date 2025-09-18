@@ -19,7 +19,7 @@ searchRoute.get('/',
       // User Location or Map Center
       latitude: z.coerce.number().min(-90).max(90).optional(),
       longitude: z.coerce.number().min(-180).max(180).optional(),
-      radius: z.coerce.number().min(0).max(10000).default(1000).optional(), // in meters (max 10 km)
+      radius: z.coerce.number().min(0).max(50000).default(1000).optional(), // in meters (max 50 km)
       // Pagination
       limit: z.number().min(1).max(100).default(20).optional(), // Result Limit
       offset: z.number().min(0).max(1000).default(0).optional(), // Result Offset
